@@ -83,6 +83,25 @@
     window.addEventListener("load", () => {
       new Runtime("MMFCanvas", "resources/HTML5_TEST.cch");
     });
+
+    // Anti-Aliasingin ohjausfunktio
+    function setAntiAliasing(enabled) {
+        var c = document.querySelector('canvas');
+        if (!c) return;
+
+        if (enabled) {
+            // Smooth scaling (Bilinear / Anti-Aliased)
+            c.style.imageRendering = 'auto';
+            var ctx = c.getContext('2d');
+            if (ctx) ctx.imageSmoothingEnabled = true;
+        } else {
+            // Pixel-crisp scaling (Nearest Neighbor / Crisp Edges)
+            c.style.imageRendering = 'pixelated';
+            c.style.imageRendering = 'crisp-edges';
+            var ctx = c.getContext('2d');
+            if (ctx) ctx.imageSmoothingEnabled = false;
+        }
+    }
   </script>
 
 </body>
