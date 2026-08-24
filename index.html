@@ -103,28 +103,36 @@
         }
     }
 
-    // Lukitsee näytön vaakatasoon (Landscape) ensimmäisellä kosketuksella
+    // Lukitsee näytön vaakatasoon aina kun fullscreen puuttuu
     async function enforceLandscape() {
+      if (document.fullscreenElement) return;
+
       try {
         const el = document.documentElement;
-        if (!document.fullscreenElement) {
-          if (el.requestFullscreen) {
-            await el.requestFullscreen();
-          } else if (el.webkitRequestFullscreen) {
-            await el.webkitRequestFullscreen();
-          }
+        if (el.requestFullscreen) {
+          await el.requestFullscreen();
+        } else if (el.webkitRequestFullscreen) {
+          await el.webkitRequestFullscreen();
         }
         
         if (screen.orientation && screen.orientation.lock) {
           await screen.orientation.lock('landscape');
         }
       } catch (err) {
-        console.warn('Orientation lock failed or not supported:', err);
+        console.warn('Orientation lock failed or waiting for interaction:', err);
       }
     }
 
-    document.addEventListener('touchend', enforceLandscape, { once: true });
-    document.addEventListener('click', enforceLandscape, { once: true });
+    // Kuuntelee jatkuvasti kosketuksia, jotta tila palautuu heti kun palaat peliin ja napautat ruutua
+    document.addEventListener('touchend', enforceLandscape);
+    document.addEventListener('click', enforceLandscape);
+
+    // Kokeilee automaattilukitusta kun palataan takaisin välilehdelle
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        enforceLandscape();
+      }
+    });
   </script>
 
 </body>
