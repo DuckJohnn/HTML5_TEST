@@ -102,6 +102,29 @@
             if (ctx) ctx.imageSmoothingEnabled = false;
         }
     }
+
+    // Lukitsee näytön vaakatasoon (Landscape) ensimmäisellä kosketuksella
+    async function enforceLandscape() {
+      try {
+        const el = document.documentElement;
+        if (!document.fullscreenElement) {
+          if (el.requestFullscreen) {
+            await el.requestFullscreen();
+          } else if (el.webkitRequestFullscreen) {
+            await el.webkitRequestFullscreen();
+          }
+        }
+        
+        if (screen.orientation && screen.orientation.lock) {
+          await screen.orientation.lock('landscape');
+        }
+      } catch (err) {
+        console.warn('Orientation lock failed or not supported:', err);
+      }
+    }
+
+    document.addEventListener('touchend', enforceLandscape, { once: true });
+    document.addEventListener('click', enforceLandscape, { once: true });
   </script>
 
 </body>
